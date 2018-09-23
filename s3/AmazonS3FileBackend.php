@@ -116,19 +116,18 @@ class AmazonS3FileBackend extends FileBackendStore {
 			$this->memCache = $config['wanCache'];
 		}
 
-		$params = [
+		$s3_options = [
 			'version' => '2006-03-01',
 			'region' => isset( $config['awsRegion'] ) ? $config['awsRegion'] : $wgAWSRegion,
 			'scheme' => $this->useHTTPS ? 'https' : 'http'
 		];
-		if ( $wgAWSCredentials['key'] ) {
-			$params['credentials'] = [
-				'key' => isset( $config['awsKey'] ) ? $config['awsKey'] : $wgAWSCredentials['key'],
-				'secret' => isset( $config['awsSecret'] ) ? $config['awsSecret'] : $wgAWSCredentials['secret'],
-				'token' => isset( $config['awsToken'] ) ? $config['awsToken'] : $wgAWSCredentials['token'],
-			];
+		$s3_key = isset( $config['awsKey'] ) ? $config['awsKey'] : $wgAWSCredentials['key'];
+		$s3_secret = isset( $config['awsSecret'] ) ? $config['awsSecret'] : $wgAWSCredentials['secret'];
+		$s3_token = isset( $config['awsToken'] ) ? $config['awsToken'] : $wgAWSCredentials['token'];
+		if ( $s3_key || $s3_secret || $s3_token ) {
+			$s3_options['credentials'] = ['key' => $s3_key, 'secret' => $s3_secret, 'token' => $s3_token];
 		}
-		$this->client = new S3Client( $params );
+		$this->client = new S3Client( $s3_options );
 
 		if ( isset( $config['containerPaths'] ) ) {
 			$this->containerPaths = (array)$config['containerPaths'];
